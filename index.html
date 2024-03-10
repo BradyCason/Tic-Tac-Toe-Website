@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+    <div class="buttons">
+        <button class="num-players-button button-78">Single Player</button>
+        <button class="restart-button button-78">Restart</button>
+    </div>
+    <p class="turn-text">It's X's turn.</p>
+    <div class="board">
+        <div class="row">
+            <div class="square-div 0 0" style="border-right: solid;border-bottom: solid;">
+                <div class="square"></div>
+            </div>
+            <div class="square-div 1 0" style="border-right: solid;border-left:solid; border-bottom: solid;">
+                <div class="square"></div>
+            </div>
+            <div class="square-div 2 0" style="border-left: solid;border-bottom: solid;">
+                <div class="square"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="square-div 0 1" style="border-right: solid;border-bottom: solid; border-top: solid;">
+                <div class="square"></div>
+            </div>
+            <div class="square-div 1 1" style="border: solid;">
+                <div class="square"></div>
+            </div>
+            <div class="square-div 2 1" style="border-left: solid;border-bottom: solid; border-top: solid;">
+                <div class="square"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="square-div 0 2" style="border-right: solid;border-top: solid;">
+                <div class="square"></div>
+            </div>
+            <div class="square-div 1 2" style="border-right: solid; border-left: solid;border-top: solid;">
+                <div class="square"></div>
+            </div>
+            <div class="square-div 2 2" style="border-left: solid;border-top: solid;">
+                <div class="square"></div>
+            </div>
+        </div>
+    </div>
+    <h2 class="winner-text"></h2>
+</body>
+</html>
