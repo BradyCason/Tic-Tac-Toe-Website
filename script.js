@@ -4,7 +4,7 @@ function Game(){
     this.display = new Display();
     this.display.displayBoard(gameboard.gameboard);
 
-    this.computer = Computer(this.gameboard, this.display)
+    this.computer = new Computer(this.gameboard, this.display)
 
     this.player = new Player(this.display.squares, this.gameboard, this.display, this.computer);
 
@@ -54,6 +54,19 @@ function Gameboard(){
         return winner;
     }
 
+    this.fullBoard = () => {
+        let full = true;
+
+        for (let i = 0; i < 3; i++){
+            this.gameboard[i].forEach((board) => {
+                if (board[0] == " " || board[1] == " " || board[2] == " "){
+                    full = false;
+                }
+            })
+        }
+        return full;
+    }
+
     this.reset = () => {
         this.gameboard = [[" "," "," "],[" "," "," "],[" "," "," "]];
     }
@@ -75,6 +88,9 @@ function Player(squares, gb, dis, comp){
         this.multiPlayer = m;
         this.gameboard.reset();
         this.display.displayBoard(this.gameboard.gameboard)
+        if (!m){
+            this.setMarker("X")
+        }
     }
 
     squares.forEach((row) => {
@@ -92,7 +108,9 @@ function Player(squares, gb, dis, comp){
                         }
                     }
                     else{
-                        //this.computer.playMove()
+                        if (!this.gameboard.fullBoard()){
+                            this.computer.playMove()
+                        }
                     }
                 }
                 this.display.displayBoard(this.gameboard.gameboard);
@@ -125,12 +143,116 @@ function Display(){
     }
 }
 
-function Computer(gb, dis){
-    this.gameboard = gb;
+function Computer(gameboard, dis){
+    this.gb = gameboard;
     this.display = dis;
+    const winningPositions = [[[0,0],[1,1],[2,2]],[[0,0],[0,1],[0,2]],[[0,0],[1,0],[2,0]],[[1,0],[1,1],[1,2]],[[2,0],[2,1],[2,2]],[[0,1],[1,1],[2,1]],[[0,2],[1,2],[2,2]],[[0,2],[1,1],[2,0]]];
 
     this.playMove = () => {
-        
+        // Copy gameboard
+        let gameboardCopy = []
+        gameboardCopy.push(this.gb.gameboard[0].slice())
+        gameboardCopy.push(this.gb.gameboard[1].slice())
+        gameboardCopy.push(this.gb.gameboard[2].slice())
+
+
+        move = this.minimax(gameboardCopy, "O");
+        this.gb.placeMarker("O", move.row, move.column);
+        this.display.displayBoard(this.gb.gameboard);
+    }
+
+    this.minimax = (newBoard, player) => {
+        // Make list of the empty spots
+        let array = this.availableMoves(newBoard);
+
+        // Check for terminal states and return object with score property of +1 or -1 depending on who wins
+        winner = this.getWinner(newBoard);
+        if (winner == "X"){
+            return {score : -1}
+        }
+        else if (winner == "O"){
+            return {score : 1}
+        }
+        else if (array.length == 0) {
+            return {score : 0}
+        }
+
+        // Loop through empty spots, changing newBoard and player
+        let moves = []
+        array.forEach((emptySpace) => {
+            let move = {};
+            move.row = emptySpace[0];
+            move.column = emptySpace[1];
+            newBoard = this.nextBoard(newBoard, player, move.row, move.column);
+
+            if (player == "O"){
+                let g = this.minimax(newBoard, "X")
+                move.score = g.score;
+            }
+            else{
+                let g = this.minimax(newBoard, "O")
+                move.score = g.score;
+            }
+
+            newBoard = this.nextBoard(newBoard, " ", move.row, move.column)
+
+            moves.push(move)
+        })
+
+        // Return the lowest or highest of the returned values depending on who wins
+        let bestMove;
+        if (player == "O"){
+            let bestScore = -10000;
+            moves.forEach((move) => {
+                if (move.score > bestScore){
+                    bestScore = move.score;
+                    bestMove = move;
+                }
+            })
+        }
+        else{
+            let bestScore = 10000;
+            moves.forEach((move) => {
+                if (move.score < bestScore){
+                    bestScore = move.score;
+                    bestMove = move;
+                }
+            })
+        }
+        return bestMove;
+    }
+
+    this.nextBoard = (gameboard, marker, row, column) => {
+        let returnGameboard = gameboard;
+        returnGameboard[row][column] = marker;
+        return(returnGameboard);
+    }
+
+    this.getWinner = (gameboard) => {
+        const winningPositions = [[[0,0],[1,1],[2,2]],[[0,0],[0,1],[0,2]],[[0,0],[1,0],[2,0]],[[1,0],[1,1],[1,2]],[[2,0],[2,1],[2,2]],[[0,1],[1,1],[2,1]],[[0,2],[1,2],[2,2]],[[0,2],[1,1],[2,0]]];
+        let winner = "";
+        winningPositions.forEach((pos) => {
+            if (gameboard[pos[0][0]][pos[0][1]] == gameboard[pos[1][0]][pos[1][1]] && gameboard[pos[1][0]][pos[1][1]] == gameboard[pos[2][0]][pos[2][1]] && (gameboard[pos[0][0]][pos[0][1]] == "X" || gameboard[pos[0][0]][pos[0][1]] == "O")){
+                winner = gameboard[pos[0][0]][pos[0][1]];
+                return false;
+            }
+        });
+
+        return winner;
+    }
+
+    this.availableMoves = (board) => {
+        let moves = [];
+
+        for (let i = 0; i < 3; i++){
+            for (let j = 0; j < 3; j++){
+                if (board[i][j] == " "){
+                    moves.push([i,j]);
+                }
+            }
+        }
+
+        return(moves);
     }
 }
 
